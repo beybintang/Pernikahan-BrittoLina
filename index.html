@@ -67,6 +67,11 @@
 </head>
 <body class="relative min-h-screen text-gray-800 antialiased selection:bg-burgundy selection:text-white">
 
+    <!-- AUDIO ELEMENT KUSTOM -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://files.catbox.moe/e0au3k.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- FLOATING MUSIC BUTTON -->
     <div id="music-container" class="fixed bottom-6 right-6 z-50 hidden">
         <button id="music-toggle" onclick="toggleAudio()" class="w-12 h-12 rounded-full bg-burgundy text-gold border border-gold/40 flex items-center justify-center shadow-2xl hover:bg-deepburgundy transition-all duration-300 focus:outline-none pulse-ring">
@@ -97,6 +102,7 @@
 
             <div class="w-20 h-[1px] bg-gradient-to-r from-transparent via-gold to-transparent my-2"></div>
 
+            <p class="text-xs uppercase tracking-[0.25em] text-gold/90 font-medium">Sabtu, 21 November 2026</p>
 
             <div class="pt-4 space-y-1">
                 <p class="text-xs text-gray-300 italic">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
@@ -120,6 +126,7 @@
         <!-- HERO SECTION WITH NEW BACKGROUND -->
         <section class="relative min-h-[92vh] flex flex-col items-center justify-between text-center px-6 py-12 overflow-hidden">
             <div class="absolute inset-0 z-0">
+                <img src="https://lh3.googleusercontent.com/d/1nwVcj6ArVvLIKyeI5kOs6FR-Uyo1NBqt" alt="Background Hero Undangan" class="w-full h-full object-cover opacity-50 filter brightness-90" referrerpolicy="no-referrer" onerror="handleDriveImgError(this, &apos;1nwVcj6ArVvLIKyeI5kOs6FR-Uyo1NBqt&apos;)">
                 <div class="absolute inset-0 bg-gradient-to-b from-warmbeige/80 via-cream/90 to-cream"></div>
             </div>
 
@@ -330,8 +337,7 @@
                 </div>
 
                 <button type="submit" class="w-full py-3 bg-gradient-to-r from-gold to-softgold text-deepburgundy text-xs uppercase tracking-wider font-bold rounded-lg shadow hover:brightness-105 transition-all">
-                    Kirim Ucapan
-                </button>
+                    Kirim Ucapan</button>
             </form>
 
             <div class="mt-8 max-w-md mx-auto">
@@ -387,7 +393,7 @@
         Pesan Anda berhasil dikirim!
     </div>
 
-    <!-- JAVASCRIPT LOGIC WITH ROBUST AUDIO ENGINE -->
+    <!-- JAVASCRIPT LOGIC WITH SIMPLIFIED AUDIO ENGINE -->
     <script>
         // DRIVE IMAGE FALLBACK HANDLER
         function handleDriveImgError(imgEl, fileId) {
@@ -397,69 +403,7 @@
             }
         }
 
-        // ROBUST DYNAMIC AUDIO ENGINE FOR GOOGLE DRIVE
-        let audioObject = null;
-        let isPlaying = false;
-
-
-        // Lagu Latar Belakang: Cundamani - Denny Caknan
-        const audioUrls = [
-
-            "https://files.catbox.moe/cundamani.mp3",
-
-            "https://docs.google.com/uc?export=download&amp;id=1f0xD9CoH26eRtcgYkkkCZHz2kEqrsw-j"
-        ];
-
-        function initAudioEngine() {
-            if (!audioObject) {
-                audioObject = new Audio();
-                audioObject.loop = true;
-                audioObject.preload = "auto";
-                audioObject.src = audioUrls[0];
-            }
-        }
-
-        function playAudioFile() {
-            initAudioEngine();
-            const icon = document.getElementById('music-icon');
-
-            let currentUrlIndex = 0;
-
-            function attemptPlay() {
-                audioObject.play().then(() => {
-                    isPlaying = true;
-                    if (icon) icon.className = 'fas fa-music';
-                }).catch(err => {
-                    console.log('Play attempt error:', err);
-                    currentUrlIndex++;
-                    if (currentUrlIndex < audioUrls.length) {
-                        audioObject.src = audioUrls[currentUrlIndex];
-                        audioObject.load();
-                        audioObject.play().then(() => {
-                            isPlaying = true;
-                            if (icon) icon.className = 'fas fa-music';
-                        }).catch(e => console.log('Next endpoint error:', e));
-                    }
-                });
-            }
-
-            attemptPlay();
-        }
-
-        function toggleAudio() {
-            const icon = document.getElementById('music-icon');
-            if (!audioObject) {
-                initAudioEngine();
-            }
-
-            if (isPlaying) {
-                audioObject.pause();
-                isPlaying = false;
-                if (icon) icon.className = 'fas fa-volume-mute';
-            } else {
-                playAudioFile();
-            }
-        }
+        const bgMusic = document.getElementById('bg-music');
 
         function openInvitation() {
             const cover = document.getElementById('opening-cover');
@@ -468,11 +412,27 @@
             cover.classList.add('cover-slide-up');
             musicBtn.classList.remove('hidden');
 
-            playAudioFile();
+            // Putar musik saat tombol Buka Undangan diklik
+            if (bgMusic) {
+                bgMusic.play().catch(err => console.log("Autoplay diblokir browser:", err));
+            }
 
             setTimeout(() => {
                 cover.style.display = 'none';
             }, 1200);
+        }
+
+        function toggleAudio() {
+            const icon = document.getElementById('music-icon');
+            if (!bgMusic) return;
+
+            if (!bgMusic.paused) {
+                bgMusic.pause();
+                if (icon) icon.className = 'fas fa-volume-mute';
+            } else {
+                bgMusic.play();
+                if (icon) icon.className = 'fas fa-music';
+            }
         }
 
         function openLightbox(src) {
@@ -487,8 +447,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            initAudioEngine();
-
             const urlParams = new URLSearchParams(window.location.search);
             const guestName = urlParams.get('to') || urlParams.get('n');
             if (guestName) {
